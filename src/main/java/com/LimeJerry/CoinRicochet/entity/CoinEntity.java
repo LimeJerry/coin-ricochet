@@ -1,13 +1,17 @@
 package com.LimeJerry.CoinRicochet.entity;
 
+import com.LimeJerry.CoinRicochet.gun.CoinRicochetHelper;
 import com.LimeJerry.CoinRicochet.registry.ModEntities;
 import com.LimeJerry.CoinRicochet.registry.ModItems;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class CoinEntity extends ThrowableItemProjectile {
 
@@ -44,30 +48,18 @@ public class CoinEntity extends ThrowableItemProjectile {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (level().isClientSide) return true;
+        if (!(level() instanceof ServerLevel serverLevel)) return true;
 
-        boolean projectileHit =
-                source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile;
+        // ✅ 화살/눈덩이 등 투사체가 directEntity
+        boolean projectileHit = source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile;
 
-        boolean hitscanLike =
-                source.getDirectEntity() == null; // 일부 총 모드
+        // ✅ 총(히트스캔)은 FireGunPacket에서 처리할 거라면 여기선 굳이 안 잡아도 됨
+        if (projectileHit) {
+            Entity attacker = source.getEntity(); // 보통 '쏜 사람/몹' (없을 수도 있음)
+            Vec3 pos = this.position();
 
-        if (projectileHit || hitscanLike) {
-            // ✅ 맞는 순간 효과
-            level().playSound(
-                    null, getX(), getY(), getZ(),
-                    net.minecraft.sounds.SoundEvents.ANVIL_PLACE,
-                    net.minecraft.sounds.SoundSource.PLAYERS,
-                    0.35f,
-                    2.0f
-            );
-
-            if (level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-                serverLevel.sendParticles(
-                        net.minecraft.core.particles.ParticleTypes.CRIT,
-                        getX(), getY(), getZ(),
-                        10, 0.08, 0.08, 0.08, 0.02
-                );
-            }
+            // ✅ 리코셰 발동 (amount = 투사체 데미지, 단 최대 12로 캡됨)
+            CoinRicochetHelper.trigger(serverLevel, attacker, this, pos, amount, 2, 16.0);
 
             this.discard();
             return true;

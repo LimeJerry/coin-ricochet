@@ -1,6 +1,7 @@
 package com.LimeJerry.CoinRicochet.network;
 
 import com.LimeJerry.CoinRicochet.entity.CoinEntity;
+import com.LimeJerry.CoinRicochet.gun.CoinRicochetHelper;
 import com.LimeJerry.CoinRicochet.items.GunItem;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -56,18 +57,17 @@ public class FireGunPacket {
             // 히트스캔
             Entity hit = raycast(level, player, start, end, thickness);
 
+            // ✅ 총 발사 트레이서: 코인을 맞추든 말든 항상 출력
+            Vec3 tracerEnd = (hit != null)
+                    ? hit.getBoundingBox().getCenter()
+                    : end;
+            spawnGunTracer(level, start, tracerEnd);
+
             if (hit instanceof CoinEntity coin) {
                 Vec3 hitPos = coin.position();
-
-                // ✅ 코인 적중: 흰 자수정 스파클
-                spawnCoinHitEffect(level, hitPos);
-
-                // ✅ 리코셰: 주변 엔티티 최대 2명 (노란 레이)
-                ricochetToEntities(level, player, coin, hitPos, damage, 2, 16.0);
-
+                CoinRicochetHelper.trigger(level, player, coin, hitPos, damage, 2, 16.0);
                 coin.discard();
-            }
-            else if (hit != null) {
+            } else if (hit != null) {
                 hit.hurt(level.damageSources().playerAttack(player), damage);
             }
         });
@@ -127,7 +127,7 @@ public class FireGunPacket {
             Vec3 to = target.getBoundingBox().getCenter();
             if (!hasLineOfSight(level, from, to)) continue;
 
-            spawnYellowTracer(level, from, to);
+            spawnGunTracer(level, from, to);
             target.hurt(level.damageSources().playerAttack(shooter), damage);
 
             hitCount++;
@@ -136,38 +136,52 @@ public class FireGunPacket {
 
     /* ===================== EFFECTS ===================== */
 
-    // 코인 적중: 흰 자수정 느낌
-    private static void spawnCoinHitEffect(ServerLevel level, Vec3 pos) {
-        level.sendParticles(ParticleTypes.END_ROD,
-                pos.x, pos.y, pos.z,
-                16, 0.12, 0.12, 0.12, 0.02);
-
-        level.sendParticles(ParticleTypes.ELECTRIC_SPARK,
-                pos.x, pos.y, pos.z,
-                10, 0.12, 0.12, 0.12, 0.03);
-
-        level.sendParticles(ParticleTypes.FLASH,
-                pos.x, pos.y, pos.z,
-                1, 0, 0, 0, 0);
-    }
+//    // 코인 적중: 흰 자수정 느낌
+//    private static void spawnCoinHitEffect(ServerLevel level, Vec3 pos) {
+//        level.sendParticles(ParticleTypes.END_ROD,
+//                pos.x, pos.y, pos.z,
+//                16, 0.12, 0.12, 0.12, 0.02);
+//
+//        level.sendParticles(ParticleTypes.ELECTRIC_SPARK,
+//                pos.x, pos.y, pos.z,
+//                10, 0.12, 0.12, 0.12, 0.03);
+//
+//        level.sendParticles(ParticleTypes.FLASH,
+//                pos.x, pos.y, pos.z,
+//                1, 0, 0, 0, 0);
+//    }
 
     // 리코셰: 노란 레이
-    private static final DustParticleOptions YELLOW =
-            new DustParticleOptions(new Vector3f(1.0f, 0.95f, 0.2f), 1.0f);
+    private static final DustParticleOptions ORANGE_TRACER =
+            new DustParticleOptions(new Vector3f(1.0f, 0.45f, 0.05f), 1.0f);
 
-    private static void spawnYellowTracer(ServerLevel level, Vec3 from, Vec3 to) {
+    private static void spawnGunTracer(ServerLevel level, Vec3 from, Vec3 to) {
         Vec3 delta = to.subtract(from);
         double len = delta.length();
         if (len < 0.01) return;
 
         Vec3 dir = delta.scale(1.0 / len);
-        int steps = Math.min(24, Math.max(8, (int)(len * 3)));
 
+        int steps = Math.min(30, Math.max(12, (int)(len * 5)));
         for (int i = 1; i <= steps; i++) {
             double t = (double) i / steps;
             Vec3 p = from.add(dir.scale(len * t));
-            level.sendParticles(YELLOW, p.x, p.y, p.z, 1, 0, 0, 0, 0);
+
+            level.sendParticles(
+                    ParticleTypes.WAX_OFF,
+                    p.x, p.y, p.z,
+                    1,          // 개수
+                    0, 0, 0,    // 퍼짐 없음 (레이저 느낌)
+                    0.0
+            );
         }
+
+//        // 총구 번쩍 (있으면 느낌 더 살아남)
+//        level.sendParticles(
+//                ParticleTypes.FLASH,
+//                from.x, from.y, from.z,
+//                1, 0, 0, 0, 0
+//        );
     }
 
     private static boolean hasLineOfSight(ServerLevel level, Vec3 from, Vec3 to) {
