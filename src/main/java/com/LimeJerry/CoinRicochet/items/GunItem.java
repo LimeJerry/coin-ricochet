@@ -12,7 +12,7 @@ public class GunItem extends Item {
     public double range() { return 40.0; }
     public double thickness() { return 0.6; }
 
-    public net.minecraft.sounds.SoundEvent shootSound() { return net.minecraft.sounds.SoundEvents.CROSSBOW_SHOOT; }
+    public net.minecraft.sounds.SoundEvent shootSound() { return SoundEvents.FIREWORK_ROCKET_LARGE_BLAST; }
     public float shootVolume() { return 1.0f; }
     public float shootPitch() { return 1.2f; }
 }

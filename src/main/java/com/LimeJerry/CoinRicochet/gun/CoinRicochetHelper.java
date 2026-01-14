@@ -142,21 +142,21 @@ public class CoinRicochetHelper {
             Vec3 p = from.add(dir.scale(len * t));
 
             // 1) wax_off 파편감 (색은 못 바뀜)
-            level.sendParticles(ParticleTypes.WAX_OFF,
-                    p.x, p.y, p.z,
-                    1,          // 개수
-                    0.01, 0.01, 0.01, // 약간만 퍼지게
-                    0.0
-            );
-
-            // 2) 노란색을 담당하는 dust (같은 점에 같이 뿌리기)
-//            level.sendParticles(YELLOW_DUST,
+//            level.sendParticles(ParticleTypes.WAX_OFF,
 //                    p.x, p.y, p.z,
-//                    1,
-//                    0, 0, 0,
+//                    1,          // 개수
+//                    0.01, 0.01, 0.01, // 약간만 퍼지게
 //                    0.0
 //            );
-            level.sendParticles(ParticleTypes.WAX_ON,
+
+            // 2) 노란색을 담당하는 dust (같은 점에 같이 뿌리기)
+            level.sendParticles(YELLOW_DUST,
+                    p.x, p.y, p.z,
+                    1,
+                    0, 0, 0,
+                    0.0
+            );
+            level.sendParticles(ParticleTypes.WAX_OFF,
                     p.x, p.y, p.z,
                     1,          // 개수
                     0.1, 0.1, 0.1, // 약간만 퍼지게
