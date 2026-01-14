@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class MarksmanItem extends Item {
+public class MarksmanItem extends GunItem {
     public MarksmanItem(Properties props) { super(props); }
 
     @Override

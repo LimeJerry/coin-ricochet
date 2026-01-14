@@ -16,10 +16,10 @@ public class ModNetwork {
     private static int nextId() { return id++; }
 
     public static void register() {
-        CHANNEL.messageBuilder(FireMarksmanPacket.class, nextId())
-                .encoder(FireMarksmanPacket::encode)
-                .decoder(FireMarksmanPacket::decode)
-                .consumerMainThread(FireMarksmanPacket::handle)
+        CHANNEL.messageBuilder(FireGunPacket.class, nextId())
+                .encoder(FireGunPacket::encode)
+                .decoder(FireGunPacket::decode)
+                .consumerMainThread(FireGunPacket::handle)
                 .add();
     }
 }

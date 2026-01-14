@@ -1,6 +1,7 @@
 package com.LimeJerry.CoinRicochet.network;
 
 import com.LimeJerry.CoinRicochet.entity.CoinEntity;
+import com.LimeJerry.CoinRicochet.items.GunItem;
 import com.LimeJerry.CoinRicochet.registry.ModItems;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,19 +17,18 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class FireMarksmanPacket {
+public class FireGunPacket {
 
     // 데이터 없음 (그냥 "발사 요청" 신호만)
-    public static void encode(FireMarksmanPacket msg, FriendlyByteBuf buf) {}
-    public static FireMarksmanPacket decode(FriendlyByteBuf buf) { return new FireMarksmanPacket(); }
+    public static void encode(FireGunPacket msg, FriendlyByteBuf buf) {}
+    public static FireGunPacket decode(FriendlyByteBuf buf) { return new FireGunPacket(); }
 
-    public static void handle(FireMarksmanPacket msg, Supplier<NetworkEvent.Context> ctx) {
+    public static void handle(FireGunPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
 
-            // ✅ 메인핸드에 Marksman 들고 있을 때만
-            if (!player.getMainHandItem().is(ModItems.MARKSMAN.get())) return;
+            if (!(player.getMainHandItem().getItem() instanceof GunItem)) return;
 
             if (!(player.level() instanceof ServerLevel serverLevel)) return;
 

@@ -1,7 +1,7 @@
 package com.LimeJerry.CoinRicochet.client;
 
 import com.LimeJerry.CoinRicochet.CoinRicochet;
-import com.LimeJerry.CoinRicochet.network.FireMarksmanPacket;
+import com.LimeJerry.CoinRicochet.network.FireGunPacket;
 import com.LimeJerry.CoinRicochet.network.ModNetwork;
 import com.LimeJerry.CoinRicochet.registry.ModItems;
 import net.minecraft.client.Minecraft;
@@ -25,7 +25,7 @@ public class ClientAttackHandler {
         if (mc.player.getMainHandItem().is(ModItems.MARKSMAN.get())) {
             event.setCanceled(true);
             mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-            ModNetwork.CHANNEL.sendToServer(new FireMarksmanPacket());
+            ModNetwork.CHANNEL.sendToServer(new FireGunPacket());
         }
     }
 }
