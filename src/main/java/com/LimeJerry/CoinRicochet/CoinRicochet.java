@@ -1,9 +1,11 @@
 package com.LimeJerry.CoinRicochet;
 
+import com.LimeJerry.CoinRicochet.network.ModNetwork;
 import com.LimeJerry.CoinRicochet.registry.ModEntities;
 import com.LimeJerry.CoinRicochet.registry.ModItems;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(CoinRicochet.MOD_ID)
@@ -16,5 +18,11 @@ public class CoinRicochet {
 
         ModItems.ITEMS.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
+
+        modEventBus.addListener(this::commonSetup);
+    }
+
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(ModNetwork::register);
     }
 }
