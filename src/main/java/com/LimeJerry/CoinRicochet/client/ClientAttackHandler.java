@@ -1,6 +1,7 @@
 package com.LimeJerry.CoinRicochet.client;
 
 import com.LimeJerry.CoinRicochet.CoinRicochet;
+import com.LimeJerry.CoinRicochet.items.GunItem;
 import com.LimeJerry.CoinRicochet.network.FireGunPacket;
 import com.LimeJerry.CoinRicochet.network.ModNetwork;
 import com.LimeJerry.CoinRicochet.registry.ModItems;
@@ -22,7 +23,7 @@ public class ClientAttackHandler {
         if (event.getKeyMapping() != mc.options.keyAttack) return;
 
         // 메인핸드에 marksman 들고 있으면 "기본 공격/블록파괴" 대신 발사
-        if (mc.player.getMainHandItem().is(ModItems.MARKSMAN.get())) {
+        if (mc.player.getMainHandItem().getItem() instanceof GunItem) {
             event.setCanceled(true);
             mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
             ModNetwork.CHANNEL.sendToServer(new FireGunPacket());
